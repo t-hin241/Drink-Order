@@ -1,26 +1,25 @@
 from django.db import models
-from drinks.models import Drink
 from users.models import CustomUser
-# Create your models here.
+from drinks.models import Drink
 
 class Order(models.Model):
-    status_choices = [
+    STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('served', 'Served'),
     ]
     created_on = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=7, decimal_places=2)
-    status = models.CharField(choices=status_choices, default='pending')
-    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    customer = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     items = models.ManyToManyField(Drink, through='OrderItem')
-    
-    def __str__(self):
-        return f"Order{self.id} ({self.status})"
 
+    def __str__(self):
+        return f"Order {self.id} ({self.status})"
+    
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.drink.name} (x{self.quantity})"

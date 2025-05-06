@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-center">My Orders</h1>
+        {% if orders %}
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse bg-white shadow-md rounded-lg">
+                    <thead>
+                        <tr class="bg-blue-500 text-white">
+                            <th class="border border-gray-200 p-3 text-left">Order ID</th>
+                            <th class="border border-gray-200 p-3 text-left">Drinks</th>
+                            <th class="border border-gray-200 p-3 text-left">Total Price</th>
+                            <th class="border border-gray-200 p-3 text-left">Status</th>
+                            <th class="border border-gray-200 p-3 text-left">Created On</th>
+                            <th class="border border-gray-200 p-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="border border-gray-200 p-3">{{ order.id }}</td>
+                                <td class="border border-gray-200 p-3">
+                                    <ul class="list-disc list-inside">
+                                        {% for item in order.orderitem_set.all %}
+                                            <li>{{ item.drink.name }} (x{{ item.quantity }})</li>
+                                        {% empty %}
+                                            <li>No drinks</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td class="border border-gray-200 p-3">${{ order.total_price }}</td>
+                                <td class="border border-gray-200 p-3">{{ order.get_status_display }}</td>
+                                <td class="border border-gray-200 p-3">{{ order.created_on|date:"Y-m-d H:i" }}</td>
+                                <td class="border border-gray-200 p-3">
+                                    {% if order.status == 'pending' %}
+                                        <a href="{% url 'orders:order_update' order.id %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Update</a>
+                                        <form method="POST" action="{% url 'orders:order_update' order.id %}" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="cancel" value="true">
+                                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel</button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-gray-500">No actions available</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-gray-600 text-center mt-6">You have no orders.</p>
+        {% endif %}
+        <div class="mt-6 text-center">
+            <a href="{% url 'drinks:drink_menu' %}" class="text-blue-500 hover:underline">Back to Menu</a>
+        </div>
+    </div>
+</body>
+</html>

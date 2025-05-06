@@ -1,7 +1,9 @@
 from django.urls import path, include
-from . import views
+from .views import DrinkMenuView, DrinkDetailView
+
+app_name = 'drinks'
 
 urlpatterns = [
-    path('details/', views.details, name='details'),
-    path('menu/',views.DrinkMenuView.as_view(), name='drink_menu')
+    path('', DrinkMenuView.as_view(), name='drink_menu'),
+    path('<int:drink_id>/', DrinkDetailView.as_view(), name='drink_detail'),
 ]

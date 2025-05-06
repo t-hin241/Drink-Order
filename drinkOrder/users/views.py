@@ -12,7 +12,6 @@ class CustomLoginView(LoginView):
 
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('users:login')
-
 class RegisterView(View):
     def get(self, request):
         form = CustomUserCreationForm()
