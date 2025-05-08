@@ -1,5 +1,5 @@
 from django.db import models
-
+from users.models import CustomUser
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -18,3 +18,16 @@ class Drink (models.Model):
 
     def __str__(self):
         return self.name
+class Review(models.Model):
+    drink = models.ForeignKey(Drink, on_delete=models.CASCADE, related_name='reviews')
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])
+    text = models.TextField(max_length=500, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('drink', 'customer')
+        ordering = ['-created_on']
+
+    def __str__(self):
+        return f"{self.customer.username}'s review of {self.drink.name} ({self.rating} stars)"

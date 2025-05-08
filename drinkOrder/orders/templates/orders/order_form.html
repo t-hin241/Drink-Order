@@ -1,46 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Place Order</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6 text-center">Place Your Order</h1>
-        <form method="POST" action="{% url 'orders:place_order' %}">
-            {% csrf_token %}
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl font-semibold mb-4">Select Drinks</h2>
-                {% for drink in drinks %}
-                    <div class="flex items-center justify-between border-b py-4">
-                        <div>
-                            <p class="text-lg font-medium">{{ drink.name }}</p>
-                            <p class="text-gray-600">${{ drink.price }}</p>
-                            {% if drink.category %}
-                                <p class="text-sm text-gray-500">Category: {{ drink.category.name }}</p>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <label for="quantity_{{ drink.id }}" class="sr-only">Quantity for {{ drink.name }}</label>
-                            <input type="number" name="quantity_{{ drink.id }}" id="quantity_{{ drink.id }}" min="0" value="0" class="w-16 p-2 border rounded">
-                        </div>
-                    </div>
-                {% empty %}
-                    <p class="text-gray-600">No drinks available.</p>
-                {% endfor %}
-                <div class="mt-6 flex justify-between">
-                    <a href="{% url 'drinks:drink_menu' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back to Menu</a>
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Order</button>
+{% extends 'base.html' %}
+
+{% block title %}Place Order{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-center">Place Your Order</h1>
+<form method="POST" action="{% url 'orders:place_order' %}">
+    {% csrf_token %}
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Select Drinks</h2>
+        {% for drink in drinks %}
+            <div class="flex items-center justify-between border-b py-4">
+                <div>
+                    <p class="text-lg font-medium">{{ drink.name }}</p>
+                    <p class="text-gray-600">${{ drink.price }}</p>
+                    {% if drink.category %}
+                        <p class="text-sm text-gray-500">Category: {{ drink.category.name }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="quantity_{{ drink.id }}" class="sr-only">Quantity for {{ drink.name }}</label>
+                    <input type="number" name="quantity_{{ drink.id }}" id="quantity_{{ drink.id }}" min="0" value="0" class="w-16 p-2 border rounded">
                 </div>
             </div>
-        </form>
-        {% if user.is_authenticated %}
-            <div class="mt-6 text-center">
-                <a href="{% url 'users:profile' %}" class="text-blue-500 hover:underline">Back to Profile</a>
-            </div>
-        {% endif %}
+        {% empty %}
+            <p class="text-gray-600">No drinks available.</p>
+        {% endfor %}
+        <div class="mt-6 flex justify-between">
+            <a href="{% url 'drinks:drink_menu' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back to Menu</a>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Order</button>
+        </div>
     </div>
-</body>
-</html>
+</form>
+{% endblock %}
