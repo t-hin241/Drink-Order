@@ -32,11 +32,11 @@ class PlaceOrderView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_customer
     def get(self, request):
-        drinks = Drink.objects.all().order_by('name')
+        drinks = Drink.objects.filter(is_available=True).order_by('name')
         return render(request, 'orders/order_form.html', {'drinks': drinks})
 
     def post(self, request):
-        drinks = Drink.objects.all()
+        drinks = Drink.objects.filter(is_available=True)
         total_price = 0
         order_items = []
 

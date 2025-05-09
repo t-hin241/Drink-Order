@@ -1,10 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Drink Menu{% endblock %}
+{% block title %}Bartender Menu{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6 text-center">Drink Menu</h1>
-<form method="GET" action="{% url 'drinks:drink_menu' %}" class="mb-6 flex flex-col sm:flex-row gap-4">
+<h1 class="text-3xl font-bold mb-6">Bartender Menu</h1>
+
+{% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+            <p class="{% if message.tags == 'success' %}text-green-500{% else %}text-red-500{% endif %} text-center">{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+<form method="GET" action="{% url 'drinks:bartender_menu' %}" class="mb-6 flex flex-col sm:flex-row gap-4">
     <div class="flex-1">
         <label for="search" class="block text-gray-700 mb-2">Search Drinks</label>
         <input type="text" name="search" id="search" value="{{ search_query|default:'' }}" placeholder="Search for drink..." class="border rounded p-2 w-full" aria-label="Search drinks by name">
@@ -22,6 +30,7 @@
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" aria-label="Apply search and category filters">Search</button>
     </div>
 </form>
+
 {% if drinks %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for drink in drinks %}
@@ -40,7 +49,7 @@
                 {% if drink.category %}
                     <p class="text-gray-500 mb-2">Category: {{ drink.category.name }}</p>
                 {% endif %}
-                <div class="flex items-center">
+                <div class="flex items-center mb-2">
                     {% if drink.avg_rating is not None %}
                         <p class="text-yellow-500" aria-label="Average rating: {{ drink.avg_rating|floatformat:1 }} stars">
                             {% for i in "12345" %}
@@ -56,10 +65,22 @@
                         <p class="text-gray-600" aria-label="No reviews">No reviews</p>
                     {% endif %}
                 </div>
+                <p class="mb-2 {% if drink.is_available %}text-green-500{% else %}text-red-500{% endif %}">
+                    Status: {{ drink.is_available|yesno:"Available,Unavailable" }}
+                </p>
+                <form method="POST" action="{% url 'drinks:bartender_menu' %}" class="flex space-x-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="drink_id" value="{{ drink.id }}">
+                    {% if drink.is_available %}
+                        <button type="submit" name="action" value="make_unavailable" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" aria-label="Make {{ drink.name }} unavailable">Make Unavailable</button>
+                    {% else %}
+                        <button type="submit" name="action" value="make_available" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" aria-label="Make {{ drink.name }} available">Make Available</button>
+                    {% endif %}
+                </form>
             </div>
         {% endfor %}
     </div>
 {% else %}
-    <p class="text-gray-600 text-center">No drinks available for this category.</p>
+    <p class="text-gray-600 text-center">No drinks available.</p>
 {% endif %}
 {% endblock %}

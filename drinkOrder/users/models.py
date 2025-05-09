@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
+    full_name = models.CharField(max_length=150, blank=True)
+    avatar = models.ImageField(upload_to='users/', blank=True, null=True)
     # Add role-specific fields
     is_customer = models.BooleanField(default=True)
     is_bartender = models.BooleanField(default=False)

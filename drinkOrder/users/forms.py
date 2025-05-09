@@ -9,7 +9,7 @@ class CustomUserCreationForm(UserCreationForm):
 
 class CustomUserUpdateForm(UserChangeForm):
     password = None  # Remove password field from form
-
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'phone_number', 'address')
+        fields = ('full_name', 'avatar', 'email', 'phone_number', 'address')
+    

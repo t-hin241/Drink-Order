@@ -31,7 +31,7 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, 'users/profile.html', {'form': form})
 
     def post(self, request):
-        form = CustomUserUpdateForm(request.POST, instance=request.user)
+        form = CustomUserUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             return redirect('users:profile')

@@ -3,42 +3,26 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
-    <h1 class="text-2xl font-bold mb-4 text-center">Your Profile</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <div class="mb-4">
-            <label for="username" class="block text-gray-700">Username</label>
-            {{ form.username }}
-        </div>
-        <div class="mb-4">
-            <label for="email" class="block text-gray-700">Email</label>
-            {{ form.email }}
-        </div>
-        <div class="mb-4">
-            <label for="phone_number" class="block text-gray-700">Phone Number</label>
-            {{ form.phone_number }}
-        </div>
-        <div class="mb-4">
-            <label for="address" class="block text-gray-700">Address</label>
-            {{ form.address }}
-        </div>
-        {% if form.errors %}
-            <ul class="text-red-500 text-sm mb-4">
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+<div class="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+    <div class="mb-6 text-center">
+        {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Avatar of {{ user.full_name|default:user.username }}" class="w-24 h-24 rounded-full object-cover mx-auto">
+        {% else %}
+            <img src="https://media.istockphoto.com/illustrations/blank-man-profile-head-icon-placeholder-illustration-id1298261537?k=20&m=1298261537&s=612x612&w=0&h=8plXnK6Ur3LGqG9s-Xt2ZZfKk6bI0IbzDZrNH9tr9Ok=" alt="No avatar for {{ user.full_name|default:user.username }}" class="w-24 h-24 rounded-full object-cover mx-auto">
         {% endif %}
-        <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Update Profile</button>
-    </form>
-    <div class="mt-4 text-center">
-        <a href="{% url 'orders:customer_order_list' %}" class="text-blue-500 hover:underline">View My Orders</a>
     </div>
+    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="text-red-500 text-sm">{{ field.errors.as_text }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full" aria-label="Save profile changes">Save Changes</button>
+    </form>
 </div>
 {% endblock %}
