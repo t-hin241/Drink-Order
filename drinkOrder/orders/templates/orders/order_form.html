@@ -12,23 +12,54 @@
             <div class="flex items-center justify-between border-b py-4">
                 <div>
                     <p class="text-lg font-medium">{{ drink.name }}</p>
-                    <p class="text-gray-600">${{ drink.price }}</p>
-                    {% if drink.category %}
-                        <p class="text-sm text-gray-500">Category: {{ drink.category.name }}</p>
-                    {% endif %}
+                    <p class="text-green-600">Price: ${{ drink.price|floatformat:2 }}</p>
                 </div>
-                <div>
-                    <label for="quantity_{{ drink.id }}" class="sr-only">Quantity for {{ drink.name }}</label>
-                    <input type="number" name="quantity_{{ drink.id }}" id="quantity_{{ drink.id }}" min="0" value="0" class="w-16 p-2 border rounded">
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <label for="quantity_{{ drink.id }}" class="sr-only">Quantity for {{ drink.name }}</label>
+                        <input type="number" name="quantity_{{ drink.id }}" id="quantity_{{ drink.id }}" min="0" value="0" class="w-16 p-2 border rounded focus:ring-2 focus:ring-blue-500" aria-describedby="subtotal_{{ drink.id }}" data-price="{{ drink.price|floatformat:2 }}">
+                    </div>
+                    <span id="subtotal_{{ drink.id }}" class="text-green-600" aria-live="polite" style="display: none">$0.00</span>
                 </div>
             </div>
         {% empty %}
             <p class="text-gray-600">No drinks available.</p>
         {% endfor %}
-        <div class="mt-6 flex justify-between">
-            <a href="{% url 'drinks:drink_menu' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back to Menu</a>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Order</button>
+        <div class="mt-6">
+            <p class="text-xl font-semibold text-green-600" id="total-price" aria-live="polite">Total: $0.00</p>
+        </div>
+        <div class="mt-4 flex justify-between">
+            <a href="{% url 'drinks:drink_menu' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">Back to Menu</a>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Submit Order</button>
         </div>
     </div>
 </form>
+
+<script>
+    // Get all quantity inputs and total price element
+    const quantityInputs = document.querySelectorAll('input[type="number"]');
+    const totalPriceElement = document.getElementById('total-price');
+
+    // Function to update subtotals and total price
+    function updatePrices() {
+        let total = 0;
+        quantityInputs.forEach(input => {
+            const quantity = parseInt(input.value) || 0;
+            const price = parseFloat(input.getAttribute('data-price'));
+            const subtotal = quantity * price;
+            const subtotalElement = document.getElementById(`subtotal_${input.id.split('_')[1]}`);
+            subtotalElement.textContent = `$${subtotal.toFixed(2)} ${quantity > 0 ? `(${quantity} x $${price.toFixed(2)})` : ''}`;
+            total += subtotal;
+        });
+        totalPriceElement.textContent = `Total: $${total.toFixed(2)}`;
+    }
+
+    // Add input event listeners to all quantity inputs
+    quantityInputs.forEach(input => {
+        input.addEventListener('input', updatePrices);
+    });
+
+    // Initialize prices on page load
+    updatePrices();
+</script>
 {% endblock %}

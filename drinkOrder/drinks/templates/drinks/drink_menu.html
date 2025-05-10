@@ -3,6 +3,63 @@
 {% block title %}Drink Menu{% endblock %}
 
 {% block content %}
+<h1 class="text-3xl font-bold mb-6 text-center">Top Drinks </h1>
+    {% if top_drinks %}
+        <div class="mb-12">
+            <div class="relative">
+                <div id="carousel" class="overflow-hidden">
+                    <div id="carousel-inner" class="flex transition-transform duration-300 ease-in-out">
+                        {% for item in top_drinks %}
+                            <div class="carousel-item flex-shrink-0 w-full flex flex-col items-center justify-center">
+                                <a href="{% url 'drinks:drink_detail' item.id %}" class="text-center">
+                                    {% if item.image %}
+                                        <img src="{{ item.image.url }}" alt="Image of {{ item.name }}" class="w-64 h-64 object-cover rounded mx-auto mb-4">
+                                    {% else %}
+                                        <img src="https://th.bing.com/th/id/OIP.VXlACuVJ-LQ6pAEOZQGgggHaHa?cb=iwc1&rs=1&pid=ImgDetMain" alt="No image for {{ item.name }}" class="w-64 h-64 object-cover rounded mx-auto mb-4">
+                                    {% endif %}
+                                    <h3 class="text-xl font-medium">{{ item.name }}</h3>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button id="prev-button" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-500 text-white p-2 rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Previous drink">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <button id="next-button" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-500 text-white p-2 rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Next drink">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <script>
+            const carouselInner = document.getElementById('carousel-inner');
+            const items = document.querySelectorAll('.carousel-item');
+            const totalItems = items.length;
+            let currentIndex = 0;
+
+            function updateCarousel() {
+                const offset = -currentIndex * 100;
+                carouselInner.style.transform = `translateX(${offset}%)`;
+            }
+
+            document.getElementById('next-button').addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % totalItems;
+                updateCarousel();
+            });
+
+            document.getElementById('prev-button').addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+                updateCarousel();
+            });
+
+            // Initialize carousel
+            updateCarousel();
+        </script>
+    {% endif %}
 <h1 class="text-3xl font-bold mb-6 text-center">Drink Menu</h1>
 <form method="GET" action="{% url 'drinks:drink_menu' %}" class="mb-6 flex flex-col sm:flex-row gap-4">
     <div class="flex-1">
@@ -44,7 +101,7 @@
                     {% if drink.avg_rating is not None %}
                         <p class="text-yellow-500" aria-label="Average rating: {{ drink.avg_rating|floatformat:1 }} stars">
                             {% for i in "12345" %}
-                                {% if i|add:"0" <= drink.avg_rating|add:"0.5"|floatformat:0 %}
+                                {% if i|add:"0" <= drink.avg_rating %}
                                     ⭐
                                 {% else %}
                                     ☆

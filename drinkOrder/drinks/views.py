@@ -19,6 +19,7 @@ class DrinkMenuView(View):
     def get(self, request):
         search_query = request.GET.get('search', '').strip()
         category_id = request.GET.get('category')
+        top_drinks = [top['drink'] for top in Drink.get_top_drinks(limit=5)]
     
         # search feature
         if search_query:
@@ -43,7 +44,14 @@ class DrinkMenuView(View):
             'categories': categories,
             'selected_category': category_id,
             'search_query': search_query,
+            'top_drinks': top_drinks,
         })
+class TopDrinksView(View):
+    def get(self, request):
+        top_drinks = Drink.get_top_drinks(limit=5)
+        return render(request, 'drinks/top_drinks.html', {
+            'top_drinks': top_drinks,
+        })    
 class BartenderMenuView(LoginRequiredMixin, UserPassesTestMixin, View):
     '''
     Bartender menu view for manage available drink that allow customer to order
@@ -110,14 +118,23 @@ class BartenderMenuView(LoginRequiredMixin, UserPassesTestMixin, View):
             #messages.error(request, f"Failed to update {drink.name}: {str(e)}")
         
         return redirect('drinks:bartender_menu')
-
+    
 class DrinkDetailView(View):
     def get(self, request, drink_id):
         drink = get_object_or_404(Drink, id=drink_id)
+        reviews = Review.objects.all()
+        sentiment = request.GET.get('sentiment')
+        if sentiment:
+            try:
+                reviews = reviews.filter(sentiment=sentiment)
+            except (Review.DoesNotExist, ValueError):
+                logger.warning(f"Invalid sentiment: {sentiment}")
+                reviews = Review.objects.none()                
         review_form = ReviewForm() if request.user.is_authenticated and request.user.is_customer else None
         can_review = review_form is not None and not Review.objects.filter(drink=drink, customer=request.user).exists()
         return render(request, 'drinks/drink_detail.html', {
             'drink': drink,
+            'reviews': reviews,
             'review_form': review_form,
             'can_review': can_review,
         })
@@ -187,7 +204,6 @@ class ReviewEditView(LoginRequiredMixin, UserPassesTestMixin, View):
             'can_review': False,
             'editing_review': review,
         })
-
 class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])
