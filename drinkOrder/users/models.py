@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
     is_bartender = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    share_profile = models.BooleanField(default=True, help_text="Allow bartenders to view your profile (e.g., favorite drinks, visit frequency).")
 
     def __str__(self):
         return self.username

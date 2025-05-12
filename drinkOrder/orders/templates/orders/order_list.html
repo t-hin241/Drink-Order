@@ -3,7 +3,7 @@
 {% block title %}Pending Orders{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6 text-center">Pending Orders</h1>
+<h1 class="text-3xl font-bold mb-6 text-center">Orders List</h1>
 {% if orders %}
     <div class="overflow-x-auto">
         <table class="w-full border-collapse bg-white shadow-md rounded-lg">
@@ -39,12 +39,16 @@
                         </td>
                         <td class="border border-gray-200 p-3">${{ order.total_price }}</td>
                         <td class="border border-gray-200 p-3">{{ order.created_on|date:"Y-m-d H:i" }}</td>
+                        {% if order.status == 'served' %}
+                        <td class="border border-gray-200 p-3">{{ order.status }}</td>
+                        {% else %}
                         <td class="border border-gray-200 p-3">
                             <form method="POST" action="{% url 'orders:serve_order' order.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Serve</button>
                             </form>
                         </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

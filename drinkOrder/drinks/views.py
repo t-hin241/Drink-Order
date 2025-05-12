@@ -81,7 +81,7 @@ class BartenderMenuView(LoginRequiredMixin, UserPassesTestMixin, View):
                 logger.warning(f"Invalid category_id: {category_id}")
                 drinks = Drink.objects.none()
         
-        for drink in drinks:
+        for drink in drinks.annotate(avg_rating=Avg('reviews__rating')).order_by('name'):
             logger.debug(f"Bartender view - Drink {drink.name}: is_available={drink.is_available}, avg_rating={drink.avg_rating}")
         
         categories = Category.objects.all()
@@ -122,7 +122,7 @@ class BartenderMenuView(LoginRequiredMixin, UserPassesTestMixin, View):
 class DrinkDetailView(View):
     def get(self, request, drink_id):
         drink = get_object_or_404(Drink, id=drink_id)
-        reviews = Review.objects.all()
+        reviews = Review.objects.filter(drink=drink)
         sentiment = request.GET.get('sentiment')
         if sentiment:
             try:

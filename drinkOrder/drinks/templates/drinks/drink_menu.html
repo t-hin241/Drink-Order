@@ -113,6 +113,9 @@
                         <p class="text-gray-600" aria-label="No reviews">No reviews</p>
                     {% endif %}
                 </div>
+                <p class="mb-2 {% if drink.is_available %}text-green-500{% else %}text-red-500{% endif %}">
+                    Status: {{ drink.is_available|yesno:"Available,Unavailable" }}
+                </p>
             </div>
         {% endfor %}
     </div>

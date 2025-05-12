@@ -34,12 +34,19 @@
         <nav class="bg-blue-600 p-4">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <!-- Logo -->
-                <a href="{% url 'drinks:drink_menu' %}" class="text-white text-xl font-bold">Drink Order System</a>
+                {% if user.is_authenticated %}
+                    {% if user.is_bartender %}
+                        <a href="{% url 'drinks:bartender_menu' %}" class="text-white text-xl font-bold">Drink Order System</a>
+                    {% else %}
+                        <a href="{% url 'drinks:drink_menu' %}" class="text-white text-xl font-bold">Drink Order System</a>
+                    {% endif %}
+                {% endif %} 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-4">
                     {% if user.is_authenticated %}
                         {% if user.is_bartender %}
-                            <a href="{% url 'drinks:bartender_menu' %}" class="text-white hover:underline">Bartender Menu</a>
+                            <a href="{% url 'orders:order_list' %}" class="text-white hover:underline">Order List</a>
+                            <a href="{% url 'users:customer_list' %}" class="text-white hover:underline">Customer List</a>
                         {% endif %}
                         {% if user.is_customer %}
                             <a href="{% url 'orders:place_order' %}" class="text-white hover:underline">Place Order</a>
@@ -50,11 +57,13 @@
                                 {% if user.avatar %}
                                     <img src="{{ user.avatar.url }}" alt="Avatar of {{ user.full_name|default:user.username }}" class="h-10 w-10 rounded-full object-cover">
                                 {% else %}
-                                    <img src="https://via.placeholder.com/40x40?text=No+Avatar" alt="No avatar for {{ user.full_name|default:user.username }}" class="h-10 w-10 rounded-full object-cover">
+                                    <img src="https://media.istockphoto.com/illustrations/blank-man-profile-head-icon-placeholder-illustration-id1298261537?k=20&m=1298261537&s=612x612&w=0&h=8plXnK6Ur3LGqG9s-Xt2ZZfKk6bI0IbzDZrNH9tr9Ok=" alt="No avatar for {{ user.full_name|default:user.username }}" class="h-10 w-10 rounded-full object-cover">
                                 {% endif %}
                             </button>
                             <div id="avatar-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
+                                {% if user.is_customer %}
                                 <a href="{% url 'orders:customer_order_list' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">My Orders</a>
+                                {% endif %}
                                 <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Profile</a>
                                 <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                                     <form method="POST" action="{% url 'users:logout' %}" class="inline">

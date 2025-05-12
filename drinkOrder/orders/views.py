@@ -12,8 +12,8 @@ class OrderListView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_bartender
     def get(self, request):
-        pending_orders = Order.objects.filter(status='pending').order_by('created_on')
-        return render(request, 'orders/order_list.html', {'orders': pending_orders})
+        orders = Order.objects.all().order_by('-created_on')
+        return render(request, 'orders/order_list.html', {'orders': orders})
 
 class ServeOrderView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):

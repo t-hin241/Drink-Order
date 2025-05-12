@@ -5,7 +5,7 @@ from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'phone_number', 'address')
+        fields = ('username', 'full_name', 'email', 'phone_number', 'address')
 
 class CustomUserUpdateForm(UserChangeForm):
     password = None  # Remove password field from form
